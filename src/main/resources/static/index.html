@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart User Management System</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-users"></i> Smart User Management System</h1>
+        <p>Complete User Management with REST API</p>
+    </header>
+
+    <main>
+        <section class="form-section">
+            <h2><i class="fas fa-user-plus"></i> Add New User</h2>
+            <form id="userForm" class="user-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="name">Name *</label>
+                        <input type="text" id="name" placeholder="Enter full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" placeholder="Enter email address" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Role *</label>
+                        <select id="role" required>
+                            <option value="">Select Role</option>
+                            <option value="admin">Admin</option>
+                            <option value="user">User</option>
+                            <option value="manager">Manager</option>
+                            <option value="developer">Developer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status *</label>
+                        <select id="status" required>
+                            <option value="">Select Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add User
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="clearForm()">
+                    <i class="fas fa-eraser"></i> Clear Form
+                </button>
+            </form>
+        </section>
+
+        <section class="stats-section">
+            <h2><i class="fas fa-chart-bar"></i> User Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalUsers">0</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="activeUsers">0</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="adminUsers">0</div>
+                    <div class="stat-label">Admin Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="inactiveUsers">0</div>
+                    <div class="stat-label">Inactive Users</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="filter-section">
+            <h2><i class="fas fa-filter"></i> Filter Users</h2>
+            <div class="filter-controls">
+                <button class="filter-btn active" onclick="filterUsers('all')">All Users</button>
+                <button class="filter-btn" onclick="filterUsers('active')">Active Only</button>
+                <button class="filter-btn" onclick="filterUsers('inactive')">Inactive Only</button>
+                <button class="filter-btn" onclick="filterUsers('admin')">Admin Only</button>
+            </div>
+        </section>
+
+        <section class="users-section">
+            <h2><i class="fas fa-list"></i> Users List</h2>
+            <div class="table-container">
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                    </tbody>
+                </table>
+                <div id="noUsersMessage" class="no-users" style="display: none;">
+                    <i class="fas fa-users-slash"></i>
+                    <p>No users found. Add your first user above!</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="api-section">
+            <h2><i class="fas fa-code"></i> API Testing Console</h2>
+            <div class="api-controls">
+                <div class="api-method">
+                    <label>API Endpoint:</label>
+                    <select id="apiMethod">
+                        <option value="GET">GET /users</option>
+                        <option value="GET_ACTIVE">GET /users/active</option>
+                        <option value="POST">POST /users</option>
+                        <option value="PUT">PUT /users/{id}</option>
+                        <option value="DELETE">DELETE /users/{id}</option>
+                    </select>
+                </div>
+                <div class="api-input">
+                    <label>Request Body (JSON):</label>
+                    <textarea id="apiBody" placeholder='{"name": "John Doe", "email": "john@example.com", "role": "user", "status": "active"}'></textarea>
+                </div>
+                <button class="btn btn-api" onclick="testAPI()">
+                    <i class="fas fa-play"></i> Test API
+                </button>
+            </div>
+            <div class="api-response">
+                <h3>API Response:</h3>
+                <pre id="apiResponse">Click "Test API" to see the response here...</pre>
+            </div>
+        </section>
+    </main>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2><i class="fas fa-user-edit"></i> Edit User</h2>
+            <form id="editForm">
+                <input type="hidden" id="editId">
+                <div class="form-group">
+                    <label for="editName">Name:</label>
+                    <input type="text" id="editName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editEmail">Email:</label>
+                    <input type="email" id="editEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="editRole">Role:</label>
+                    <select id="editRole">
+                        <option value="admin">Admin</option>
+                        <option value="user">User</option>
+                        <option value="manager">Manager</option>
+                        <option value="developer">Developer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editStatus">Status:</label>
+                    <select id="editStatus">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Update User
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Smart User Management System | Built with Spring Boot & JavaScript</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

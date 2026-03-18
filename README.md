@@ -470,4 +470,4 @@ If you have any questions or need help:
 
 ---
 
-**Built with ❤️ using Spring Boot and modern web technologies**
+
